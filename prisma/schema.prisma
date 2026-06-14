@@ -1,0 +1,70 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model People {
+  id              String    @id @default(uuid())
+  nome            String    @db.VarChar(150)
+  cpf             String    @unique @db.VarChar(11)
+  dataNascimento  DateTime? @map("data_nascimento") @db.Date
+  endereco        String?
+  telefone        String?   @db.VarChar(20)
+  pontoReferencia String?   @map("ponto_referencia")
+  bairro          String?
+  cidade          String?
+  uf              String?   @db.VarChar(2)
+  cep             String?   @db.VarChar(8)
+  comunidade      String?
+  localVotacao    String?   @map("local_votacao")
+  tituloEleitor   String?   @map("titulo_eleitor")
+  zona            String?   @db.VarChar(10)
+  secao           String?   @db.VarChar(10)
+  coordenador     String?
+  facebook        String?
+  instagram       String?
+  obs             String?   @db.Text
+  atividades      String?   @db.Text
+  criadoEm        DateTime  @default(now()) @map("criado_em")
+
+  // Relacionamento: Uma pessoa pode ter muitas demandas
+  demandas Demanda[]
+
+  @@map("pessoas")
+}
+
+model Demanda {
+  id          String        @id @default(uuid())
+  nomeDemanda String        @map("nome_demanda") @db.VarChar(150)
+  descricao   String?       @db.Text
+  status      StatusDemanda @default(PENDENTE)
+  rua         String?
+  bairro      String?
+  cidade      String?
+  uf          String?       @db.VarChar(2)
+  icone       String?
+  dataCriacao DateTime      @default(now()) @map("data_criacao")
+
+  // Relacionamento: Muitas demandas podem pertencer a uma Pessoa (opcional)
+  pessoaId String? @map("pessoa_id")
+  pessoa   People? @relation(fields: [pessoaId], references: [id], onDelete: SetNull)
+
+  @@map("demandas")
+}
+
+enum StatusDemanda {
+  PENDENTE
+  EM_ANDAMENTO
+  RESOLVIDO
+  CANCELADO
+}
