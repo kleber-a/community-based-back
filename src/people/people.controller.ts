@@ -55,4 +55,9 @@ export class PeopleController {
   remove(@Param('id') id: string) {
     return this.peopleService.remove(id);
   }
+
+  @Delete()
+  removeAll() {
+    return this.peopleService.removeAll();
+  }
 }

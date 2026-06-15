@@ -137,4 +137,13 @@ export class PeopleService {
       where: { id: id },
     });
   }
+
+  async removeAll() {
+    const result = await this.prisma.people.deleteMany();
+
+    return {
+      message: 'Pessoas removidas com sucesso',
+      totalRemovidos: result.count,
+    };
+  }
 }

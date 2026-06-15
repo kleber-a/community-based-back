@@ -1,4 +1,5 @@
 import {
+    IsArray,
     IsDateString,
     IsOptional,
     IsString,
@@ -88,7 +89,11 @@ export class CreatePersonDto {
     @IsString()
     obs?: string;
 
+    // @IsOptional()
+    // @IsString()
+    // atividades?: string;
     @IsOptional()
-    @IsString()
-    atividades?: string;
+    @IsArray()
+    @IsString({ each: true })
+    atividades?: string[];
 }

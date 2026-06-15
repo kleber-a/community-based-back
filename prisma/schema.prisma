@@ -34,7 +34,7 @@ model People {
   facebook        String?
   instagram       String?
   obs             String?   @db.Text
-  atividades      String?   @db.Text
+  atividades      String[]  @default([])
   criadoEm        DateTime  @default(now()) @map("criado_em")
 
   // Relacionamento: Uma pessoa pode ter muitas demandas
