@@ -1,6 +1,10 @@
 -- CreateEnum
-CREATE TYPE "StatusDemanda" AS ENUM ('PENDENTE', 'EM_ANDAMENTO', 'RESOLVIDO', 'CANCELADO');
-
+CREATE TYPE "StatusDemanda" AS ENUM (
+    'PENDENTE',
+    'EM_ANDAMENTO',
+    'RESOLVIDO',
+    'CANCELADO'
+);
 -- CreateTable
 CREATE TABLE "pessoas" (
     "id" TEXT NOT NULL,
@@ -24,18 +28,14 @@ CREATE TABLE "pessoas" (
     "instagram" TEXT,
     "obs" TEXT,
     "criado_em" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
     CONSTRAINT "pessoas_pkey" PRIMARY KEY ("id")
 );
-
 -- CreateTable
 CREATE TABLE "categorias" (
     "id" TEXT NOT NULL,
     "nome" TEXT NOT NULL,
-
     CONSTRAINT "categorias_pkey" PRIMARY KEY ("id")
 );
-
 -- CreateTable
 CREATE TABLE "demandas" (
     "id" TEXT NOT NULL,
@@ -46,47 +46,36 @@ CREATE TABLE "demandas" (
     "bairro" TEXT,
     "cidade" TEXT,
     "uf" VARCHAR(2),
-    "fotos" TEXT[] DEFAULT ARRAY[]::TEXT[],
+    "fotos" TEXT [] DEFAULT ARRAY []::TEXT [],
     "criado_em" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
     CONSTRAINT "demandas_pkey" PRIMARY KEY ("id")
 );
-
 -- CreateTable
 CREATE TABLE "pessoas_demandas" (
     "pessoaId" TEXT NOT NULL,
     "demandaId" TEXT NOT NULL,
     "solicitadoEm" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "pessoas_demandas_pkey" PRIMARY KEY ("pessoaId","demandaId")
+    CONSTRAINT "pessoas_demandas_pkey" PRIMARY KEY ("pessoaId", "demandaId")
 );
-
 -- CreateTable
-CREATE TABLE "_CategoriaToPeople" (
-    "A" TEXT NOT NULL,
-    "B" TEXT NOT NULL
-);
-
+CREATE TABLE "_CategoryToPeople" ("A" TEXT NOT NULL, "B" TEXT NOT NULL);
 -- CreateIndex
 CREATE UNIQUE INDEX "pessoas_cpf_key" ON "pessoas"("cpf");
-
 -- CreateIndex
 CREATE UNIQUE INDEX "categorias_nome_key" ON "categorias"("nome");
-
 -- CreateIndex
-CREATE UNIQUE INDEX "_CategoriaToPeople_AB_unique" ON "_CategoriaToPeople"("A", "B");
-
+CREATE UNIQUE INDEX "_CategoryToPeople_AB_unique" ON "_CategoryToPeople"("A", "B");
 -- CreateIndex
-CREATE INDEX "_CategoriaToPeople_B_index" ON "_CategoriaToPeople"("B");
-
+CREATE INDEX "_CategoryToPeople_B_index" ON "_CategoryToPeople"("B");
 -- AddForeignKey
-ALTER TABLE "pessoas_demandas" ADD CONSTRAINT "pessoas_demandas_pessoaId_fkey" FOREIGN KEY ("pessoaId") REFERENCES "pessoas"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
+ALTER TABLE "pessoas_demandas"
+ADD CONSTRAINT "pessoas_demandas_pessoaId_fkey" FOREIGN KEY ("pessoaId") REFERENCES "pessoas"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 -- AddForeignKey
-ALTER TABLE "pessoas_demandas" ADD CONSTRAINT "pessoas_demandas_demandaId_fkey" FOREIGN KEY ("demandaId") REFERENCES "demandas"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
+ALTER TABLE "pessoas_demandas"
+ADD CONSTRAINT "pessoas_demandas_demandaId_fkey" FOREIGN KEY ("demandaId") REFERENCES "demandas"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 -- AddForeignKey
-ALTER TABLE "_CategoriaToPeople" ADD CONSTRAINT "_CategoriaToPeople_A_fkey" FOREIGN KEY ("A") REFERENCES "categorias"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
+ALTER TABLE "_CategoryToPeople"
+ADD CONSTRAINT "_CategoryToPeople_A_fkey" FOREIGN KEY ("A") REFERENCES "categorias"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 -- AddForeignKey
-ALTER TABLE "_CategoriaToPeople" ADD CONSTRAINT "_CategoriaToPeople_B_fkey" FOREIGN KEY ("B") REFERENCES "pessoas"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "_CategoryToPeople"
+ADD CONSTRAINT "_CategoryToPeople_B_fkey" FOREIGN KEY ("B") REFERENCES "pessoas"("id") ON DELETE CASCADE ON UPDATE CASCADE;

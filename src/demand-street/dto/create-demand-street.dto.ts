@@ -39,6 +39,16 @@ export class CreateDemandStreetDto {
     uf?: string;
 
     @IsOptional()
+    @IsString()
+    @MaxLength(50)
+    protocolo?: string;
+
+    @IsOptional()
+    @IsString()
+    @MaxLength(150)
+    orgaoResponsavel?: string;
+
+    @IsOptional()
     @IsArray()
     @IsString({ each: true })
     fotos?: string[];

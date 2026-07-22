@@ -67,6 +67,9 @@ model DemandStreet {
 
   fotos String[] @default([])
 
+  protocolo        String? @db.VarChar(50)
+  orgaoResponsavel String? @map("orgao_responsavel") @db.VarChar(150)
+
   criadoEm DateTime @default(now()) @map("criado_em")
 
   solicitantes PessoaDemandaRua[]
