@@ -36,7 +36,7 @@ export class PeopleService {
     // };
 
     return this.prisma.people.create({
-      data: createPersonDto,
+      data: prismaData,
     });
   }
 
@@ -183,4 +183,46 @@ export class PeopleService {
       },
     });
   }
+
+
+  async addCategorias(
+    pessoaId: string,
+    categoriasIds: string[],
+  ) {
+    return this.prisma.people.update({
+      where: {
+        id: pessoaId,
+      },
+      data: {
+        categorias: {
+          connect: categoriasIds.map(id => ({ id })),
+        },
+      },
+      include: {
+        categorias: true,
+      },
+    });
+  }
+
+  async removeCategoria(
+    pessoaId: string,
+    categoriaId: string,
+  ) {
+    return this.prisma.people.update({
+      where: {
+        id: pessoaId,
+      },
+      data: {
+        categorias: {
+          disconnect: {
+            id: categoriaId,
+          },
+        },
+      },
+      include: {
+        categorias: true,
+      },
+    });
+  }
+
 }

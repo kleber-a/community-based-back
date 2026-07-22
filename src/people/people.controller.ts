@@ -22,6 +22,11 @@ export class PeopleController {
     return this.peopleService.create(createPersonDto);
   }
 
+  @Post(':id/categories')
+  addCategorias(@Param('id') id: string, @Body() addCategoriasDto: { categoriasIds: string[] }) {
+    return this.peopleService.addCategorias(id, addCategoriasDto.categoriasIds);
+  }
+
   @Get()
   findAll(@Query() filter: FilterPeopleDto) {
     return this.peopleService.findAll(filter);
@@ -43,5 +48,16 @@ export class PeopleController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.peopleService.remove(id);
+  }
+
+  @Delete(':id/categories/:categoriaId')
+  removeCategoria(
+    @Param('id') pessoaId: string,
+    @Param('categoriaId') categoriaId: string,
+  ) {
+    return this.peopleService.removeCategoria(
+      pessoaId,
+      categoriaId,
+    );
   }
 }
