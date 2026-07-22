@@ -34,32 +34,59 @@ model People {
   facebook        String?
   instagram       String?
   obs             String?   @db.Text
-  atividades      String[]  @default([])
   criadoEm        DateTime  @default(now()) @map("criado_em")
 
   // Relacionamento: Uma pessoa pode ter muitas demandas
-  demandas Demanda[]
+
+  categorias        Category[]
+  pessoaDemandaRuas PessoaDemandaRua[]
 
   @@map("pessoas")
 }
 
-model Demanda {
-  id          String        @id @default(uuid())
-  nomeDemanda String        @map("nome_demanda") @db.VarChar(150)
-  descricao   String?       @db.Text
-  status      StatusDemanda @default(PENDENTE)
-  rua         String?
-  bairro      String?
-  cidade      String?
-  uf          String?       @db.VarChar(2)
-  icone       String?
-  dataCriacao DateTime      @default(now()) @map("data_criacao")
+model Category {
+  id   String @id @default(uuid())
+  nome String @unique
 
-  // Relacionamento: Muitas demandas podem pertencer a uma Pessoa (opcional)
-  pessoaId String? @map("pessoa_id")
-  pessoa   People? @relation(fields: [pessoaId], references: [id], onDelete: SetNull)
+  pessoas People[]
+
+  @@map("categorias")
+}
+
+model DemandStreet {
+  id        String  @id @default(uuid())
+  titulo    String  @db.VarChar(150)
+  descricao String? @db.Text
+
+  status StatusDemanda @default(PENDENTE)
+
+  rua    String?
+  bairro String?
+  cidade String?
+  uf     String? @db.VarChar(2)
+
+  fotos String[] @default([])
+
+  criadoEm DateTime @default(now()) @map("criado_em")
+
+  solicitantes PessoaDemandaRua[]
+  // people       People?            @relation(fields: [peopleId], references: [id])
+  // peopleId     String?
 
   @@map("demandas")
+}
+
+model PessoaDemandaRua {
+  pessoaId  String
+  demandaId String
+
+  pessoa  People       @relation(fields: [pessoaId], references: [id], onDelete: Cascade)
+  demanda DemandStreet @relation(fields: [demandaId], references: [id], onDelete: Cascade)
+
+  solicitadoEm DateTime @default(now())
+
+  @@id([pessoaId, demandaId])
+  @@map("pessoas_demandas")
 }
 
 enum StatusDemanda {
@@ -68,3 +95,22 @@ enum StatusDemanda {
   RESOLVIDO
   CANCELADO
 }
+
+// model DemandaRua {
+//   id          String        @id @default(uuid())
+//   titulo      String        @map("nome_demanda") @db.VarChar(150)
+//   descricao   String?       @db.Text
+//   status      StatusDemanda @default(PENDENTE)
+//   rua         String?
+//   bairro      String?
+//   cidade      String?
+//   uf          String?       @db.VarChar(2)
+//   icone       String?
+//   dataCriacao DateTime      @default(now()) @map("data_criacao")
+
+//   // Relacionamento: Muitas demandas podem pertencer a uma Pessoa (opcional)
+//   pessoaId String? @map("pessoa_id")
+//   pessoa   People? @relation(fields: [pessoaId], references: [id], onDelete: SetNull)
+
+//   @@map("demandas")
+// }

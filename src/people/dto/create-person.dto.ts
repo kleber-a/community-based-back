@@ -1,5 +1,4 @@
 import {
-    IsArray,
     IsDateString,
     IsOptional,
     IsString,
@@ -22,6 +21,7 @@ export class CreatePersonDto {
 
     @IsOptional()
     @IsString()
+    @MaxLength(255)
     endereco?: string;
 
     @IsOptional()
@@ -31,14 +31,17 @@ export class CreatePersonDto {
 
     @IsOptional()
     @IsString()
+    @MaxLength(255)
     pontoReferencia?: string;
 
     @IsOptional()
     @IsString()
+    @MaxLength(100)
     bairro?: string;
 
     @IsOptional()
     @IsString()
+    @MaxLength(100)
     cidade?: string;
 
     @IsOptional()
@@ -53,14 +56,17 @@ export class CreatePersonDto {
 
     @IsOptional()
     @IsString()
+    @MaxLength(150)
     comunidade?: string;
 
     @IsOptional()
     @IsString()
+    @MaxLength(255)
     localVotacao?: string;
 
     @IsOptional()
     @IsString()
+    @MaxLength(20)
     tituloEleitor?: string;
 
     @IsOptional()
@@ -75,25 +81,24 @@ export class CreatePersonDto {
 
     @IsOptional()
     @IsString()
+    @MaxLength(150)
     coordenador?: string;
 
     @IsOptional()
     @IsString()
+    @MaxLength(255)
     facebook?: string;
 
     @IsOptional()
     @IsString()
+    @MaxLength(255)
     instagram?: string;
 
     @IsOptional()
     @IsString()
     obs?: string;
 
-    // @IsOptional()
-    // @IsString()
-    // atividades?: string;
     @IsOptional()
-    @IsArray()
     @IsString({ each: true })
-    atividades?: string[];
+    categoriasIds?: string[];
 }

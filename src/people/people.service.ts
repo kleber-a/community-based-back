@@ -1,149 +1,186 @@
 import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
+
 import { CreatePersonDto } from './dto/create-person.dto';
 import { UpdatePersonDto } from './dto/update-person.dto';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { FilterPeopleDto } from './dto/filter-people.dto';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class PeopleService {
-
-  constructor(private prisma: PrismaService) { }
-
-  // create(createPersonDto: CreatePersonDto) {
-  //   // return 'This action adds a new person';
-  //   return this.prisma.people.create({
-  //     data: {
-  //       nome: createPersonDto.nome,
-  //       cpf: createPersonDto.cpf,
-  //       dataNascimento: createPersonDto.dataNascimento,
-  //       endereco: createPersonDto.endereco,
-  //       telefone: createPersonDto.telefone,
-  //       bairro: createPersonDto.bairro,
-  //       cidade: createPersonDto.cidade,
-  //       uf: createPersonDto.uf,
-  //       cep: createPersonDto.cep,
-  //     },
-  //   });
-  // }
+  constructor(private readonly prisma: PrismaService) { }
 
   async create(createPersonDto: CreatePersonDto) {
+
+
+    const { categoriasIds, ...data } = createPersonDto;
+
+    const prismaData = {
+      ...data,
+      ...(categoriasIds?.length
+        ? {
+          categorias: {
+            connect: categoriasIds.map((id) => ({
+              id,
+            })),
+          },
+        }
+        : {}),
+    };
+
+    // console.log('Dados enviados para Prisma:', prismaData);
+
+    // return {
+    //   mensagem: 'Dados recebidos',
+    //   dados: createPersonDto,
+    // };
+
     return this.prisma.people.create({
-      data: {
-        ...createPersonDto,
-        dataNascimento: createPersonDto.dataNascimento
-          ? new Date(createPersonDto.dataNascimento)
-          : undefined,
-      },
+      data: createPersonDto,
     });
   }
 
-  // findAll() {
-  //   // return `This action returns all people`;
-  //   return this.prisma.people.findMany();
-  // }
+  async findAll(filter: FilterPeopleDto) {
+    const {
+      page,
+      limit,
+      nome,
+      cpf,
+      telefone,
+      bairro,
+      cidade,
+      comunidade,
+      categoriaId,
+      orderBy,
+      order,
+    } = filter;
 
-  // async findAll(page = 1, limit = 10) {
-  //   const skip = (page - 1) * limit;
+    const where: Prisma.PeopleWhereInput = {
+      AND: [
+        nome
+          ? {
+            nome: {
+              contains: nome,
+              mode: 'insensitive',
+            },
+          }
+          : {},
 
-  //   const [data, total] = await Promise.all([
-  //     this.prisma.people.findMany({
-  //       skip,
-  //       take: limit,
-  //       orderBy: {
-  //         criadoEm: 'desc',
-  //       },
-  //     }),
-  //     this.prisma.people.count(),
-  //   ]);
+        cpf
+          ? {
+            cpf: {
+              contains: cpf,
+            },
+          }
+          : {},
 
-  //   return {
-  //     data,
-  //     meta: {
-  //       total,
-  //       page,
-  //       limit,
-  //       totalPages: Math.ceil(total / limit),
-  //     },
-  //   };
-  // }
+        telefone
+          ? {
+            telefone: {
+              contains: telefone,
+            },
+          }
+          : {},
 
+        bairro
+          ? {
+            bairro: {
+              contains: bairro,
+              mode: 'insensitive',
+            },
+          }
+          : {},
 
-  async findAll(
-    page = 1,
-    limit = 10,
-    nome?: string,
-    cpf?: string,
-  ) {
-    const skip = (page - 1) * limit;
+        cidade
+          ? {
+            cidade: {
+              contains: cidade,
+              mode: 'insensitive',
+            },
+          }
+          : {},
 
-    const where = {
-      ...(nome && {
-        nome: {
-          contains: nome,
-          mode: 'insensitive' as const,
-        },
-      }),
-      ...(cpf && {
-        cpf: {
-          contains: cpf,
-        },
-      }),
+        comunidade
+          ? {
+            comunidade: {
+              contains: comunidade,
+              mode: 'insensitive',
+            },
+          }
+          : {},
+
+        categoriaId
+          ? {
+            categorias: {
+              some: {
+                id: categoriaId,
+              },
+            },
+          }
+          : {},
+      ],
     };
 
-    const [data, total] = await Promise.all([
+    const [items, total] = await this.prisma.$transaction([
       this.prisma.people.findMany({
         where,
-        skip,
+        include: {
+          categorias: true,
+        },
+        skip: (page - 1) * limit,
         take: limit,
         orderBy: {
-          criadoEm: 'desc',
+          [orderBy]: order,
         },
       }),
-      this.prisma.people.count({ where }),
+
+      this.prisma.people.count({
+        where,
+      }),
     ]);
 
     return {
-      data,
+      data: items,
+
       meta: {
-        total,
         page,
         limit,
+        total,
+
         totalPages: Math.ceil(total / limit),
+
+        hasNext: page < Math.ceil(total / limit),
+
+        hasPrevious: page > 1,
       },
     };
   }
 
-  findOne(id: string) {
-    // return `This action returns a #${id} person`;
+  async findOne(id: string) {
     return this.prisma.people.findUnique({
-      where: { id: id },
-    });
-  }
-
-  update(id: string, updatePersonDto: UpdatePersonDto) {
-    // return `This action updates a #${id} person`;
-    return this.prisma.people.update({
-      where: { id: id },
-      data: {
-        // name: updatePersonDto.name,
-        // email: updatePersonDto.email,
-        // phone: updatePersonDto.phone,
+      where: {
+        id,
+      },
+      include: {
+        categorias: true,
       },
     });
   }
 
-  remove(id: string) {
-    // return `This action removes a #${id} person`;
-    return this.prisma.people.delete({
-      where: { id: id },
+  async update(id: string, updatePersonDto: UpdatePersonDto) {
+    return this.prisma.people.update({
+      where: {
+        id,
+      },
+      data: updatePersonDto,
     });
   }
 
-  async removeAll() {
-    const result = await this.prisma.people.deleteMany();
-
-    return {
-      message: 'Pessoas removidas com sucesso',
-      totalRemovidos: result.count,
-    };
+  async remove(id: string) {
+    return this.prisma.people.delete({
+      where: {
+        id,
+      },
+    });
   }
 }
