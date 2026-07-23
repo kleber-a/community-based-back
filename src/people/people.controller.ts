@@ -7,11 +7,14 @@ import {
   Patch,
   Post,
   Query,
+  UploadedFile,
+  UseInterceptors
 } from '@nestjs/common';
 import { PeopleService } from './people.service';
 import { CreatePersonDto } from './dto/create-person.dto';
 import { UpdatePersonDto } from './dto/update-person.dto';
 import { FilterPeopleDto } from './dto/filter-people.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('people')
 export class PeopleController {
@@ -60,4 +63,25 @@ export class PeopleController {
       categoriaId,
     );
   }
+
+  // @Post('importar')
+  // @UseInterceptors(FileInterceptor('arquivo'))
+  // importar(
+  //   @UploadedFile() arquivo: Express.Multer.File,
+  // ) {
+
+  //   return this.peopleService.importarPlanilha(arquivo);
+
+  // }
+
+  @Post('importar')
+  @UseInterceptors(FileInterceptor('arquivo'))
+  importar(
+    @UploadedFile() arquivo: Express.Multer.File,
+  ) {
+    console.log('Arquivo recebido:', arquivo); // Log para verificar o arquivo recebido
+    return this.peopleService.importarPlanilha(arquivo);
+
+  }
+
 }
